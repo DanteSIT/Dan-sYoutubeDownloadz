@@ -10,7 +10,7 @@ import shutil
 class YouTubeDownloader:
     def __init__(self, root):
         self.root = root
-        self.root.title("YouTube Downloader by Dante")
+        self.root.title("Video Downloader - by Dante Lespoir")
         self.root.geometry("850x950")
         self.root.configure(bg="#0f0f0f")
 
@@ -99,7 +99,7 @@ class YouTubeDownloader:
         url = self.url_var.get().strip()
         if not url: return
         self.info_text.delete(1.0, tk.END)
-        self.info_text.insert(tk.END, " ⚙ Probing YouTube... please wait.\n")
+        self.info_text.insert(tk.END, " ... Probing YouTube... please wait.\n")
 
         def thread_target():
             try:
