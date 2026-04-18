@@ -22,7 +22,7 @@ class YouTubeDownloader:
         self.gray = "#aaaaaa"
 
         self.url_var = tk.StringVar()
-        self.save_path = tk.StringVar(value=os.path.expanduser("~/Downloads"))
+        self.save_path = tk.StringVar(value=os.path.expanduser("~/Downloads")) #Default path for download
         self.quality_var = tk.StringVar(value="Select Quality")
 
         self.setup_ui()
@@ -41,11 +41,21 @@ class YouTubeDownloader:
         ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
         return ansi_escape.sub('', text)
 
+    def format_size(self, size_bytes):
+        """Converts bytes to human-readable format (KB, MB, GB)."""
+        if size_bytes is None:
+            return "Unknown"
+        for unit in ['B', 'KB', 'MB', 'GB']:
+            if size_bytes < 1024:
+                return f"{size_bytes:.1f}{unit}"
+            size_bytes /= 1024
+        return f"{size_bytes:.1f}TB"
+
     def setup_ui(self):
         # Header
         header = tk.Frame(self.root, bg=self.accent, height=60)
         header.pack(fill="x")
-        tk.Label(header, text="YouTube Downloader", font=("Arial", 18, "bold"), bg=self.accent, fg="white").pack(pady=15)
+        tk.Label(header, text="Video Downloader", font=("Arial", 18, "bold"), bg=self.accent, fg="white").pack(pady=15)
 
         main_frame = tk.Frame(self.root, bg=self.bg_color)
         main_frame.pack(fill="both", expand=True, padx=30, pady=20)
@@ -99,7 +109,7 @@ class YouTubeDownloader:
         url = self.url_var.get().strip()
         if not url: return
         self.info_text.delete(1.0, tk.END)
-        self.info_text.insert(tk.END, " ... Probing YouTube... please wait.\n")
+        self.info_text.insert(tk.END, " @ Fetching YouTube... please wait.\n")
 
         def thread_target():
             try:
@@ -109,22 +119,30 @@ class YouTubeDownloader:
 
                 formats = info.get('formats', [])
                 res_list = []
+                size_dict = {}  # Store file sizes per resolution
                 table = f"TITLE: {info.get('title')}\n" + "═"*65 + "\n"
 
                 for res in [4320, 2160, 1440, 1080, 720, 480, 360]:
-                    if any(f.get('height') == res for f in formats):
+                    matching_formats = [f for f in formats if f.get('height') == res]
+                    if matching_formats:
                         res_list.append(f"{res}p")
-                        table += f"✔️ {res}p Available\n"
+                        # Get the largest filesize for this resolution (video + audio combined)
+                        max_size = max([f.get('filesize', 0) or 0 for f in matching_formats])
+                        size_dict[f"{res}p"] = max_size
+                        size_str = self.format_size(max_size) if max_size > 0 else "Size: N/A"
+                        table += f"✔️ {res}p Available - {size_str}\n"
 
-                self.root.after(0, lambda: self.finish_fetch(table, res_list))
+                self.root.after(0, lambda: self.finish_fetch(table, res_list, size_dict))
             except Exception as e:
                 self.root.after(0, lambda: messagebox.showerror("Error", f"Fetch failed: {e}"))
 
         threading.Thread(target=thread_target, daemon=True).start()
 
-    def finish_fetch(self, text, res_list):
+    def finish_fetch(self, text, res_list, size_dict=None):
         self.info_text.delete(1.0, tk.END)
         self.info_text.insert(tk.END, text)
+        # Store size info for reference during download
+        self.size_dict = size_dict or {}
         self.quality_combo['values'] = ["Best Available"] + sorted(list(set(res_list)), key=lambda x: int(x.replace('p','')), reverse=True)
         self.quality_combo.current(0)
         self.download_btn.config(state="normal")
@@ -178,6 +196,7 @@ class YouTubeDownloader:
             p = self.clean_ansi(p_raw).replace('%','').strip()
             speed = self.clean_ansi(d.get('_speed_str', 'N/A'))
             eta = self.clean_ansi(d.get('_eta_str', 'N/A'))
+
             got = self.clean_ansi(d.get('_downloaded_bytes_str', '0MB'))
 
             try:
