@@ -109,7 +109,7 @@ class YouTubeDownloader:
         url = self.url_var.get().strip()
         if not url: return
         self.info_text.delete(1.0, tk.END)
-        self.info_text.insert(tk.END, " @ Fetching YouTube... please wait.\n")
+        self.info_text.insert(tk.END, " @ Fetching ... please wait.\n")
 
         def thread_target():
             try:

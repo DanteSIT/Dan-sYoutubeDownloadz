@@ -1,4 +1,4 @@
-('/home/dantepc/Documents/code_projects_dante/Youtube_Downloader_demo/Youtube_Downloader_Demo/build/youtube_downloader/PYZ-00.pyz',
+('/home/dantepc/Documents/code_projects_dante/Youtube_Downloader_demo/Youtube_Downloader_Demo-1/build/youtube_downloader/PYZ-00.pyz',
  [('Cryptodome',
    '/usr/lib64/python3.14/site-packages/Cryptodome/__init__.py',
    'PYMODULE'),
