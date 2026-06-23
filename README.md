@@ -1,4 +1,3 @@
-<img width="830" height="1108" alt="image" src="https://github.com/user-attachments/assets/a2183376-202f-4e5e-a2df-506828773380" />
 dependanices :
 
 @ffmpeg 
