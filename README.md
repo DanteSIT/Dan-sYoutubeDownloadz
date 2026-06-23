@@ -3,7 +3,7 @@
 @atomicparsley
 @pillow
 
-// The program will try and install it if it can on both Windows and Linux and macOS
+// The program will try and install it if it can on both Windows and Linux NOT ON MAC ... I dont own one to know how to develop on it
 
 //Note This was developed on Linux , windows users will need to install auto-py-to-exe to turn the code into an executable on their device
 
